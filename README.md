@@ -1,4 +1,4 @@
-# xdsljson
+# xdsl-json
 
 This project lets you generate specialized shared libraries using MLIR, based on JSON function descriptions.
 The generated libraries can then be called from your codebase without having to write a complex front-end for your solution.
@@ -74,6 +74,21 @@ uv run python tests/run_tests.py
 └── tests/
     └── run_tests.py       # Run tests
 ```
+
+## Trace example
+
+We want to generate a function that look like this:
+```python
+def xdsl_main(max: int) -> int:
+    toto = 0
+    i = 0
+    while i < max:
+        toto = toto + i
+        i = i + 1
+    return toto
+```
+
+We start by writting by hand the 
 
 
 ```bash
