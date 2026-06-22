@@ -1,0 +1,18 @@
+{
+  "op": "module",
+  "body": [
+    { "op": "function",
+      "name": "xdsl_main",
+      "args": [
+        ["myArray", {"memref": [5, "i64"]}],
+        ["index", "index"]
+      ],
+      "body": [
+      { "op": "var",
+        "name": "myArray",
+        "indices": [{"name": "index"}]
+      }
+      ]
+    }
+  ]
+}
