@@ -88,13 +88,60 @@ def xdsl_main(max: int) -> int:
     return toto
 ```
 
-We start by writting by hand the 
+We start by writting by hand the Json version (this step can be automated for your custom language).
 
+```json
+{ "op": "module",
+  "body": [
+    { "op": "function",
+      "name": "xdsl_main",
+      "args": [["max", "i64"]],
+      "body": [
+        { "op": "set",
+          "var": { "op": "var", "name": "toto", "type": "i64" },
+          "val": { "op": "const", "val": 0 }
+        },
+        { "op": "set",
+          "var": { "op": "var", "name": "i", "type": "i64" },
+          "val": { "op": "const", "val": 0 }
+        },
+        { "op": "while",
+          "cond": { "op": "binary",
+            "ope": "<",
+            "lhs": { "op": "var", "name": "i" },
+            "rhs": { "op": "var", "name": "max" }
+          },
+          "thenBlock": [
+            { "op": "set",
+              "var": { "op": "var", "name": "toto" },
+              "val": { "op": "binary",
+                "ope": "+",
+                "lhs": { "op": "var", "name": "toto" },
+                "rhs": { "op": "var", "name": "i" }
+              }
+            },
+            { "op": "set",
+              "var": { "op": "var", "name": "i" },
+              "val": { "op": "binary",
+                "ope": "+",
+                "lhs": { "op": "var", "name": "i" },
+                "rhs": { "op": "const", "val": 1 }
+              }
+            }
+          ]
+        },
+        { "op": "var", "name": "toto" }
+      ]
+    }
+  ]
+}
+```
 
+We can then call our compiler tool :
 ```bash
 uv run python src/xdsljson/pipeline/cli.py examples/somme/main.json  -TxmML
 # Equivalent to
-uv run python src/xdsljson/pipeline/cli.py examples/somme/main.json  --tree --xdsl --mlir --mlir_opti --llvm
+We start by 
 ```
 
 ```
