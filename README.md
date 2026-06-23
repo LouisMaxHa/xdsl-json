@@ -17,6 +17,7 @@ Currently, this solution takes a JSON file as input, generates a library contain
 ```bash
 git clone git@github.com:LouisMaxHa/xdsl-json.git
 cd xdsl-json
+git submodule update --init --recursive
 make install
 
 # Run example

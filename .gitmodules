@@ -2,3 +2,4 @@
 	path = xdsl
 	url = https://github.com/LouisMaxHa/xdsl.git
 	branch = LouisMaxHa/add-ConvertAllocaPattern
+	shallow = true
