@@ -9,15 +9,15 @@ from collections.abc import Sequence
 from pathlib import Path
 
 _FLAG_ALIASES: dict[str, str] = {
-    "T": "tree",
-    "x": "xdsl",
-    "P": "xdsl_passes",
-    "X": "xdsl_opti",
-    "m": "mlir",
-    "M": "mlir_opti",
-    "l": "mlir_llvm",
-    "L": "llvm",
-    "C": "cmd",
+    "T": "--tree",
+    "x": "--xdsl",
+    "P": "--xdsl_passes",
+    "m": "--mlir",
+    "M": "--mlir_opti",
+    "l": "--mlir_llvm",
+    "L": "--llvm",
+    "C": "--cmd",
+    "A": "--all",
 }
 
 def _expand_grouped_trace_flags(argv: Sequence[str]) -> list[str]:
@@ -34,7 +34,7 @@ def _expand_grouped_trace_flags(argv: Sequence[str]) -> list[str]:
 
         expanded.remove(arg)
         for letter in arg[1::]:
-            expanded.append(f"--{_FLAG_ALIASES[letter]}")
+            expanded.append(_FLAG_ALIASES[letter])
 
     return expanded
 
@@ -86,12 +86,6 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Affiche l'IR xDSL après chaque passes.",
     )
     parser.add_argument(
-        "-X",
-        "--xdsl_opti",
-        action="store_true",
-        help="Affiche l'IR xDSL après les passes xDSL.",
-    )
-    parser.add_argument(
         "-m",
         "--mlir",
         action="store_true",
@@ -105,7 +99,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "-l",
-        "--llvm_mlir",
+        "--mlir_llvm",
         action="store_true",
         help="Affiche le mlir dialect LLVM.",
     )
@@ -121,9 +115,26 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Affiche les commandes mlir-opt, mlir-translate, llc, clang++, etc.",
     )
+    parser.add_argument(
+        "-A",
+        "--all",
+        action="store_true",
+        help="Raccourcis pour tree+xdsl+mlir+mlir_opti+mlir_llvm+llvm",
+    )
     if argv is None:
         argv = sys.argv[1:]
-    return parser.parse_args(_expand_grouped_trace_flags(argv))
+    argv = _expand_grouped_trace_flags(argv)
+
+    if "--all" in argv:
+        for expend in [
+            "--tree", "--xdsl",
+            "--mlir", "--mlir_opti",
+            "--mlir_llvm", "--llvm"
+        ]:
+            if expend not in argv:
+                argv.append(expend)
+
+    return parser.parse_args(argv)
 
 if __name__ == "__main__":
     from xdsljson.pipeline.compiler import main

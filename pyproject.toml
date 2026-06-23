@@ -3,7 +3,11 @@ name = "xdsljson"
 description = "A template project using xDSL."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["xdsl~=0.63.0", "pydantic~=2.13.0", "pyyaml~=6.0"]
+dependencies = [
+    "xdsl~=0.63.0",
+    "pydantic~=2.13.0",
+    "pyyaml~=6.0",
+]
 
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
@@ -42,7 +46,7 @@ dev = [
     "lit<19.0.0",
     "pytest>=8.3.4",
     "pytest-cov",
-    "pyright==1.1.409",
+    "pyright==1.1.410",
     "psutil",
 ]
 docs = ["mkdocs-material>=9.5.48", "mkdocstrings[python]>=0.26.1"]
@@ -109,3 +113,11 @@ exclude_lines = [
     'pragma: no cover',
 ]
 format = "markdown"
+
+[tool.uv.workspace]
+members = [
+    "xdsl",
+]
+
+[tool.uv.sources]
+xdsl = { workspace = true }

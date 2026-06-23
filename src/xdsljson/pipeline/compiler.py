@@ -41,10 +41,10 @@ XDSL_OPT_PASSES: list[
     | ReconcileUnrealizedCastsPass
     ]
 ] = [
-    # ConvertMemRefToPtr,
     # ConvertPtrTypeOffsetsPass,
-    # ConvertPtrToLLVMPass,
     # ReconcileUnrealizedCastsPass
+    ConvertMemRefToPtr,
+    ConvertPtrToLLVMPass,
 ]
 
 MLIR_OPT_PASSES: Sequence[str] = [
@@ -126,11 +126,6 @@ def main(argv: Sequence[str] | None = None) -> int:
                 path_mlir
             )
 
-    # Print
-    if args.xdsl_opti:
-        xdsl_to_mlir(module, path_mlir)
-        print_if(args.xdsl_opti, "xDSL opti", path_mlir)
-
     # xDSL -> mlir
     xdsl_to_mlir(module, path_mlir)
     print_if(args.mlir, "MLIR", path_mlir)
@@ -155,7 +150,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         path_llvm_mlir,
         [f"--pass-pipeline={passes}"]
     )
-    print_if(args.llvm_mlir, "MLIR LLVM dialect", path_llvm_mlir)
+    print_if(args.mlir_llvm, "MLIR LLVM dialect", path_llvm_mlir)
 
     # llvm mlir -> llvm
     convert_to_llvm(

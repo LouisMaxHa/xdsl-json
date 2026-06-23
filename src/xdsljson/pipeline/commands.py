@@ -152,6 +152,8 @@ def run_command(cmd: Sequence[str]) -> str:
     except subprocess.CalledProcessError as exc:
         print()
         print(f"Error when running {name} :", file=sys.stderr)
+        print("Full command:", " ".join(cmd).replace(" -", "\n\t-"))
+        print()
         print('\033[91m' + exc.stderr + '\033[0m', file=sys.stderr)
         exit(1)
 
