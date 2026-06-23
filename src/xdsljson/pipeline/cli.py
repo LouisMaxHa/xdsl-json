@@ -18,6 +18,7 @@ _FLAG_ALIASES: dict[str, str] = {
     "L": "--llvm",
     "C": "--cmd",
     "A": "--all",
+    "d": "--show-diff",
 }
 
 def _expand_grouped_trace_flags(argv: Sequence[str]) -> list[str]:
@@ -120,6 +121,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--all",
         action="store_true",
         help="Raccourcis pour tree+xdsl+mlir+mlir_opti+mlir_llvm+llvm",
+    )
+    parser.add_argument(
+        "-d",
+        "--show-diff",
+        action="store_true",
+        help="Affiche le diff coloré entre chaque étape de l'IR.",
     )
     if argv is None:
         argv = sys.argv[1:]

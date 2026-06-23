@@ -9,18 +9,15 @@ LIT_OPTIONS ?= -v --order=smart
 
 
 .PHONY: install
-install: .venv/ pre-commit
+install: .venv/
 
 .venv/:
 	uv sync ${VENV_GROUPS}
 
-.PHONY: pre-commit
-pre-commit: .venv/
-	uv run pre-commit install
-
 .PHONY: check
 check: .venv/
-	uv run pre-commit run --all-files
+	uv run ruff check src tests
+	uv run ruff format --check src tests
 
 .PHONY: pyright
 pyright: .venv/

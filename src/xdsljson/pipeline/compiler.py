@@ -19,6 +19,7 @@ from xdsljson.pipeline.commands import (
     init_xdsl,
     link_executable,
     load_input_file,
+    mlir_to_xdsl,
     run_mlir_opt,
     set_display_cmd,
     xdsl_to_mlir,
@@ -26,12 +27,48 @@ from xdsljson.pipeline.commands import (
 from xdsljson.trace import configure_trace, enable_trace
 
 
-def print_if(cond: bool, header: str, path: Path):
-    if cond:
-        print()
-        print("────── " + header)
-        print(path.read_text())
-        print()
+def print_if(
+    cond: bool,
+    header: str,
+    path: Path,
+    *,
+    show_diff: bool = False,
+    last_print_path: Path | None = None,
+) -> None:
+    if not cond:
+        return
+    text = path.read_text()
+    print()
+    print("────── " + header)
+    if (
+        show_diff
+        and last_print_path is not None
+        and last_print_path.exists()
+    ):
+        import difflib
+
+        from rich.console import Console
+        from rich.syntax import Syntax
+
+        prev_text = last_print_path.read_text()
+        diff = "\n".join(
+            difflib.unified_diff(
+                prev_text.splitlines(),
+                text.splitlines(),
+                fromfile="before",
+                tofile=header,
+                lineterm="",
+            )
+        )
+        if diff:
+            Console().print(Syntax(diff, "diff"))
+        else:
+            Console().print(Syntax(text, "mlir"))
+    else:
+        print(text)
+    print()
+    if last_print_path is not None:
+        last_print_path.write_text(text)
 
 XDSL_OPT_PASSES: list[
     type[
@@ -41,9 +78,9 @@ XDSL_OPT_PASSES: list[
     | ReconcileUnrealizedCastsPass
     ]
 ] = [
-    # ConvertPtrTypeOffsetsPass,
-    # ReconcileUnrealizedCastsPass
     ConvertMemRefToPtr,
+    ConvertPtrTypeOffsetsPass,
+    ReconcileUnrealizedCastsPass,
     ConvertPtrToLLVMPass,
 ]
 
@@ -57,6 +94,10 @@ MLIR_OPT_PASSES: Sequence[str] = [
     "--normalize-memrefs",
     "--memref-expand",
     "--fold-memref-alias-ops",
+]
+
+MLIR_OPT_LOWER_TO_LLVM_PRE: Sequence[str] = [
+    "convert-func-to-llvm",
 ]
 
 MLIR_OPT_LOWER_TO_LLVM: Sequence[str] = [
@@ -98,6 +139,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     path_llvm      = build_dir / f"{stem}.ll"
     path_librairie = build_dir / f"{stem}.o"
     path_runnable  = input_path.with_suffix(".out")
+    path_last_print = build_dir / f"{stem}.last.ir"
 
     # Json -> Pydantic AST
     data = load_input_file(input_path)
@@ -113,7 +155,31 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     # Print
     xdsl_to_mlir(module, path_xdsl)
-    print_if(args.xdsl, "xDSL", path_xdsl)
+    print_if(
+        args.xdsl,
+        "xDSL",
+        path_xdsl,
+        show_diff=args.show_diff,
+        last_print_path=path_last_print,
+    )
+
+    # Pré-passes mlir
+    passes = f"builtin.module({','.join(MLIR_OPT_LOWER_TO_LLVM_PRE)})"
+    run_mlir_opt(
+        toolchain,
+        path_xdsl,
+        path_xdsl,
+        [f"--pass-pipeline={passes}"]
+    )
+    print_if(
+        args.xdsl,
+        "Pré process avant xDSL",
+        path_xdsl,
+        show_diff=args.show_diff,
+        last_print_path=path_last_print,
+    )
+
+    module = mlir_to_xdsl(ctx, path_xdsl)
 
     # xDSL passes
     for passe in XDSL_OPT_PASSES:
@@ -121,14 +187,23 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         if args.xdsl_passes:
             xdsl_to_mlir(module, path_mlir)
-            print_if(args.xdsl_passes,
+            print_if(
+                args.xdsl_passes,
                 f"xDSL afte {passe.__name__} passe",
-                path_mlir
+                path_mlir,
+                show_diff=args.show_diff,
+                last_print_path=path_last_print,
             )
 
     # xDSL -> mlir
     xdsl_to_mlir(module, path_mlir)
-    print_if(args.mlir, "MLIR", path_mlir)
+    print_if(
+        args.mlir,
+        "MLIR",
+        path_mlir,
+        show_diff=args.show_diff,
+        last_print_path=path_last_print,
+    )
 
     # Verify
     module.verify()
@@ -140,7 +215,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         path_optimized,
         MLIR_OPT_PASSES
     )
-    print_if(args.mlir_opti, "Optimized MLIR", path_optimized)
+    print_if(
+        args.mlir_opti,
+        "Optimized MLIR",
+        path_optimized,
+        show_diff=args.show_diff,
+        last_print_path=path_last_print,
+    )
 
     # mlir -> llvm mlir
     passes = f"builtin.module({','.join(MLIR_OPT_LOWER_TO_LLVM)})"
@@ -150,7 +231,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         path_llvm_mlir,
         [f"--pass-pipeline={passes}"]
     )
-    print_if(args.mlir_llvm, "MLIR LLVM dialect", path_llvm_mlir)
+    print_if(
+        args.mlir_llvm,
+        "MLIR LLVM dialect",
+        path_llvm_mlir,
+        show_diff=args.show_diff,
+        last_print_path=path_last_print,
+    )
 
     # llvm mlir -> llvm
     convert_to_llvm(
@@ -158,7 +245,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         path_llvm_mlir,
         path_llvm
     )
-    print_if(args.llvm, "LLVM", path_llvm)
+    print_if(
+        args.llvm,
+        "LLVM",
+        path_llvm,
+        show_diff=args.show_diff,
+        last_print_path=path_last_print,
+    )
 
     # llvm -> librairie
     compile_llvm_to_object(

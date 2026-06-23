@@ -15,9 +15,11 @@ import yaml
 from pydantic import TypeAdapter
 from xdsl.builder import Builder
 from xdsl.context import Context
+from xdsl.dialects import get_all_dialects
 from xdsl.dialects.builtin import (
     ModuleOp,
 )
+from xdsl.parser import Parser
 from xdsl.printer import Printer
 from xdsl.rewriter import InsertPoint
 
@@ -162,6 +164,15 @@ def run_command(cmd: Sequence[str]) -> str:
 def xdsl_to_mlir(module: Any, output_path: Path):
     with output_path.open("w", encoding="utf-8") as f:
         Printer(stream=f).print_op(module)
+
+
+def mlir_to_xdsl(ctx: Context, path: Path) -> ModuleOp:
+    """Charge un fichier MLIR dans un ``ModuleOp`` xDSL."""
+    registered = set(ctx.registered_dialect_names)
+    for dialect_name, dialect_factory in get_all_dialects().items():
+        if dialect_name not in registered:
+            ctx.register_dialect(dialect_name, dialect_factory)
+    return Parser(ctx, path.read_text(encoding="utf-8"), str(path)).parse_module()
 
 
 # Apply MLIR passes

@@ -18,7 +18,14 @@ Currently, this solution takes a JSON file as input, generates a library contain
 git clone git@github.com:LouisMaxHa/xdsl-json.git
 cd xdsl-json
 git submodule update --init --recursive
+
+# Check xdsl version
 make install
+source .venv/bin/activate
+uv pip show xdsl
+# You should have a dev version, something like
+# Name: xdsl
+# Version: 0.1.dev3+g5f103bc63
 
 # Run example
 uv run python src/xdsljson/pipeline/cli.py examples/soa_read/main.json  

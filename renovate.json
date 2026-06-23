@@ -8,9 +8,6 @@
   "labels": [
     "dependencies"
   ],
-  "pre-commit": {
-    "enabled": true
-  },
   "nix": {
     "enabled": true
   },
