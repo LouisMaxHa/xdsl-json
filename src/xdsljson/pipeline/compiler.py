@@ -19,7 +19,6 @@ from xdsljson.pipeline.commands import (
     init_xdsl,
     link_executable,
     load_input_file,
-    mlir_to_xdsl,
     run_mlir_opt,
     set_display_cmd,
     xdsl_to_mlir,
@@ -96,10 +95,6 @@ MLIR_OPT_PASSES: Sequence[str] = [
     "--fold-memref-alias-ops",
 ]
 
-MLIR_OPT_LOWER_TO_LLVM_PRE: Sequence[str] = [
-    "convert-func-to-llvm",
-]
-
 MLIR_OPT_LOWER_TO_LLVM: Sequence[str] = [
     "convert-index-to-llvm",
     "lower-affine",
@@ -162,24 +157,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         show_diff=args.show_diff,
         last_print_path=path_last_print,
     )
-
-    # Pré-passes mlir
-    passes = f"builtin.module({','.join(MLIR_OPT_LOWER_TO_LLVM_PRE)})"
-    run_mlir_opt(
-        toolchain,
-        path_xdsl,
-        path_xdsl,
-        [f"--pass-pipeline={passes}"]
-    )
-    print_if(
-        args.xdsl,
-        "Pré process avant xDSL",
-        path_xdsl,
-        show_diff=args.show_diff,
-        last_print_path=path_last_print,
-    )
-
-    module = mlir_to_xdsl(ctx, path_xdsl)
 
     # xDSL passes
     for passe in XDSL_OPT_PASSES:
