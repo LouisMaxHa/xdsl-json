@@ -1,19 +1,19 @@
 {
-    "op": "module",
-    "body": [
-      { "op": "function",
-        "name": "xdsl_main",
-        "args": [
-            ["myArrayReference", {"addr":  {"memref": [5, "i64"]}}],
-            ["size", "index"]
-        ],
-        "body": [
-        { "op": "set",
-            "var": { "op": "var", "name": "myArray", "type": {"memref": [5, "i64"]}},
-            "val": { "op": "var", "name": "myArrayReference" , "indices": ["*"]}
-        },
-        { "op": "var", "name": "myArray" , "indices": [2]}
-        ]
-      }
-    ]
+  "op": "module",
+  "body": [
+    { "op": "function",
+      "name": "xdsl_main",
+      "args": [
+          ["myArrayReference", {"addr":  {"memref": [5, "i64"]}}],
+          ["size", "index"]
+      ],
+      "body": [
+      { "op": "set",
+          "var": { "op": "var", "name": "myArray", "type": {"memref": [5, "i64"]}},
+          "val": { "op": "var", "name": "myArrayReference" , "indices": ["*"]}
+      },
+      { "op": "var", "name": "myArray" , "indices": [2]}
+      ]
+    }
+  ]
 }
