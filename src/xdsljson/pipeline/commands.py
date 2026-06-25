@@ -193,7 +193,7 @@ def convert_to_llvm(
         "-o", str(output_path)
     ])
 
-# LLVM -> Librairie
+# LLVM -> fichier objet relocatable (.o)
 def compile_llvm_to_object(
     toolchain: Toolchain,
     input_path: Path,
@@ -208,7 +208,7 @@ def compile_llvm_to_object(
         "-o", str(output_path),
     ])
 
-# Librairie + call -> Runnable
+# Objet + call -> exécutable
 def link_executable(
     toolchain: Toolchain,
     call_source: Path,

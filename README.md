@@ -10,16 +10,16 @@ Additionally, the [xDSL](https://xdsl.dev/) Python library lets you easily defin
 Feel free to check out their interactive tutorials!
 
 
-## Usage
+## Installation
 
-Currently, this solution takes a JSON file as input, generates a library containing the functions described in that file, and then compiles a `main.call.cpp` file that calls this library.
+This project depends on a local checkout of [xDSL](https://xdsl.dev/) via a git submodule.
+Install [uv](https://docs.astral.sh/uv/), then:
 
 ```bash
 git clone git@github.com:LouisMaxHa/xdsl-json.git
 cd xdsl-json
 git submodule update --init --recursive
 
-# Check xdsl version
 make install
 source .venv/bin/activate
 uv pip show xdsl
@@ -28,10 +28,11 @@ uv pip show xdsl
 # Version: 0.1.dev3+g5f103bc63
 
 # Run example
-uv run python src/xdsljson/pipeline/cli.py examples/soa_read/main.json  
+uv run python src/xdsljson/pipeline/cli.py examples/soa_read/main.json
+uv run python src/xdsljson/pipeline/cli.py examples/ptr_array_read/main.json
 
 # Run tests
-uv run python tests/run_tests.py 
+uv run python tests/run_tests.py
 ```
 
 ## Options

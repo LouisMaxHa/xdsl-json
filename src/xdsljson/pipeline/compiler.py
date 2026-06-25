@@ -31,7 +31,6 @@ def print_if(
     header: str,
     path: Path,
     *,
-    show_diff: bool = False,
     last_print_path: Path | None = None,
 ) -> None:
     if not cond:
@@ -40,8 +39,7 @@ def print_if(
     print()
     print("────── " + header)
     if (
-        show_diff
-        and last_print_path is not None
+        last_print_path is not None
         and last_print_path.exists()
     ):
         import difflib
@@ -88,7 +86,7 @@ MLIR_OPT_PASSES: Sequence[str] = [
     "--cse",
     "--canonicalize",
     "--symbol-dce",
-    # `--mem2reg` # incompatible avec memref.alloca et scf.while ??
+    "--mem2reg", # incompatible avec memref.alloca et scf.while ??
     "--expand-strided-metadata",
     "--normalize-memrefs",
     "--memref-expand",
@@ -126,15 +124,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     stem = input_path.parent.stem
     build_dir = project_root / "build"
     build_dir.mkdir(parents=True, exist_ok=True)
-    path_call      = input_path.with_suffix(".call.cpp")
-    path_xdsl      = build_dir / f"{stem}.xdsl.mlir"
-    path_mlir      = build_dir / f"{stem}.mlir"
-    path_optimized = build_dir / f"{stem}.mlir.opt"
-    path_llvm_mlir = build_dir / f"{stem}.llvm.mlir"
-    path_llvm      = build_dir / f"{stem}.ll"
-    path_librairie = build_dir / f"{stem}.o"
-    path_runnable  = input_path.with_suffix(".out")
+    path_call       = input_path.with_suffix(".call.cpp")
+    path_xdsl       = build_dir / f"{stem}.xdsl.mlir"
+    path_mlir       = build_dir / f"{stem}.mlir"
+    path_optimized  = build_dir / f"{stem}.mlir.opt"
+    path_llvm_mlir  = build_dir / f"{stem}.llvm.mlir"
+    path_llvm       = build_dir / f"{stem}.ll"
+    path_object     = input_path.with_suffix(".o")
+    path_runnable   = input_path.with_suffix(".out")
     path_last_print = build_dir / f"{stem}.last.ir"
+    if not args.show_diff:
+        path_last_print = None
 
     # Json -> Pydantic AST
     data = load_input_file(input_path)
@@ -154,8 +154,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.xdsl,
         "xDSL",
         path_xdsl,
-        show_diff=args.show_diff,
-        last_print_path=path_last_print,
     )
 
     # xDSL passes
@@ -168,7 +166,6 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.xdsl_passes,
                 f"xDSL afte {passe.__name__} passe",
                 path_mlir,
-                show_diff=args.show_diff,
                 last_print_path=path_last_print,
             )
 
@@ -178,7 +175,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.mlir,
         "MLIR",
         path_mlir,
-        show_diff=args.show_diff,
         last_print_path=path_last_print,
     )
 
@@ -196,7 +192,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.mlir_opti,
         "Optimized MLIR",
         path_optimized,
-        show_diff=args.show_diff,
         last_print_path=path_last_print,
     )
 
@@ -212,7 +207,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.mlir_llvm,
         "MLIR LLVM dialect",
         path_llvm_mlir,
-        show_diff=args.show_diff,
         last_print_path=path_last_print,
     )
 
@@ -226,24 +220,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.llvm,
         "LLVM",
         path_llvm,
-        show_diff=args.show_diff,
         last_print_path=path_last_print,
     )
 
-    # llvm -> librairie
+    # llvm -> objet relocatable (.o)
     compile_llvm_to_object(
         toolchain,
         path_llvm,
-        path_librairie
+        path_object,
     )
 
-    # librairie + .cpp -> executable
-    link_executable(
-        toolchain,
-        path_call,
-        path_librairie,
-        path_runnable,
-    )
+    if args.link:
+        link_executable(
+            toolchain,
+            path_call,
+            path_object,
+            path_runnable,
+        )
     return 0
 
 

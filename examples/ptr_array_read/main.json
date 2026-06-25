@@ -5,14 +5,14 @@
       "name": "xdsl_main",
       "args": [
           ["myArrayReference", {"addr":  {"memref": [5, "i64"]}}],
-          ["size", "index"]
+          ["i", "i64"]
       ],
       "body": [
       { "op": "set",
           "var": { "op": "var", "name": "myArray", "type": {"memref": [5, "i64"]}},
           "val": { "op": "var", "name": "myArrayReference" , "indices": ["*"]}
       },
-      { "op": "var", "name": "myArray" , "indices": [2]}
+      { "op": "var", "name": "myArray" , "indices": [{"name": "i"}]}
       ]
     }
   ]

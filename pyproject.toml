@@ -58,10 +58,10 @@ venv = ".venv"
 enableExperimentalFeatures = true
 reportAssertAlwaysTrue = true
 reportUnnecessaryCast = true
-reportUnnecessaryIsValNode = true
+reportUnnecessaryIsInstance = true
 reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "strict"
-extraPaths = ["src", "tests"]
+extraPaths = ["src", "tests", "xdsl"]
 "include" = ["docs", "src", "tests"]
 
 [tool.ruff]

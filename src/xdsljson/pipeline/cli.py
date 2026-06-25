@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Point d'entrée du compilateur xDSL-JSON."""
+"""Entry point for the xDSL-JSON compiler."""
 
 from __future__ import annotations
 
@@ -44,89 +44,96 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="xdsljson",
         description=(
-            "Compile une description JSON/YAML en MLIR, puis en exécutable natif "
-            "via la toolchain MLIR/LLVM."
+            "Compile a JSON/YAML description to MLIR, then to a native executable "
+            "via the MLIR/LLVM toolchain."
         ),
     )
     parser.add_argument(
         "input",
         type=Path,
-        help="Chemin vers le fichier d'entrée (.json, .yaml ou .yml).",
+        help="Path to the input file (.json, .yaml, or .yml).",
     )
     parser.add_argument(
         "--mlir-bin-dir",
         type=Path,
         default=None,
         help=(
-            "Répertoire contenant mlir-opt, mlir-translate, llc et clang++ "
-            "(sinon MLIR_BIN_DIR ou PATH)."
+            "Directory containing mlir-opt, mlir-translate, llc, and clang++ "
+            "(otherwise MLIR_BIN_DIR or PATH)."
         ),
     )
     parser.add_argument(
         "--project-root",
         type=Path,
         default=Path.cwd(),
-        help="Racine du projet (pour examples/ et build/).",
+        help="Project root (for examples/ and build/).",
     )
     parser.add_argument(
         "-T",
         "--tree",
         action="store_true",
-        help="Affiche l'AST Python sous forme d'arbre (trace codegen).",
+        help="Print the Python AST as a tree (codegen trace).",
     )
     parser.add_argument(
         "-x",
         "--xdsl",
         action="store_true",
-        help="Affiche l'IR xDSL",
+        help="Print the xDSL IR.",
     )
     parser.add_argument(
         "-P",
         "--xdsl_passes",
         action="store_true",
-        help="Affiche l'IR xDSL après chaque passes.",
+        help="Print the xDSL IR after each pass.",
     )
     parser.add_argument(
         "-m",
         "--mlir",
         action="store_true",
-        help="Affiche le MLIR avant optimisation.",
+        help="Print MLIR before optimization.",
     )
     parser.add_argument(
         "-M",
         "--mlir_opti",
         action="store_true",
-        help="Affiche le MLIR après optimisation.",
+        help="Print MLIR after optimization.",
     )
     parser.add_argument(
         "-l",
         "--mlir_llvm",
         action="store_true",
-        help="Affiche le mlir dialect LLVM.",
+        help="Print the MLIR LLVM dialect.",
     )
     parser.add_argument(
         "-L",
         "--llvm",
         action="store_true",
-        help="Affiche le LLVM.",
+        help="Print LLVM IR.",
     )
     parser.add_argument(
         "-C",
         "--cmd",
         action="store_true",
-        help="Affiche les commandes mlir-opt, mlir-translate, llc, clang++, etc.",
+        help="Print mlir-opt, mlir-translate, llc, clang++, and other commands.",
     )
     parser.add_argument(
         "-A",
         "--all",
         action="store_true",
-        help="Raccourcis pour tree+xdsl+mlir+mlir_opti+mlir_llvm+llvm",
+        help="Shortcut for tree+xdsl+mlir+mlir_opti+mlir_llvm+llvm.",
     )
     parser.add_argument(
         "-d",
         "--show-diff",
         action="store_true",
-        help="Affiche le diff coloré entre chaque étape de l'IR.",
+        help="Print a colored diff between each IR stage.",
+    )
+    parser.add_argument(
+        "--link",
+        action="store_true",
+        help=(
+            "Link the object file with main.call.cpp to produce an executable (.out)."
+        ),
     )
     if argv is None:
         argv = sys.argv[1:]

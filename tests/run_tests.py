@@ -81,7 +81,12 @@ def run_example(json_path: Path, project_root: Path) -> ResultInfo:
     # main.json compilation
     try:
         exit_code = compile_main(
-            [str(json_path), "--project-root", str(project_root)]
+            [
+                str(json_path),
+                "--project-root",
+                str(project_root),
+                "--link",
+            ]
         )
 
     # Exit code
