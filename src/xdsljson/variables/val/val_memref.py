@@ -29,6 +29,7 @@ class ValMemref(ValNode):
     ty: TyMemref
 
     # ──────────── Init ────────────
+    # Problème avec les structs, j'ai du memref<5xmemref<8xi8>>
     def __init__(self, ty: TyMemref, addr: SSAValue):
         ssa_type = addr.type
         assert isinstance(ssa_type, MemRefType), f"Got {type(addr)}"
