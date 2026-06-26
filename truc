@@ -1,0 +1,213 @@
+
+────── Python AST
+ModuleJsonOp  ← []
+├── DefineStructOp  ← []
+├── DefineStructOp  ← []
+├── DefineStructOp  ← []
+└── FunctionOp('xdsl_main')  ← []
+    ├── Init args
+    │   ├── Factory.from_val  ← ValPtr(addr, Ptr(Struct('simu')))
+    │   │   │       - type = Ptr(Struct('simu'))
+    │   │   │       - value = ValSSA()
+    │   │   │       - builder = <Builder ... >
+    │   │   └── ValPtr.init_from  ← ValPtr(addr, Ptr(Struct('simu')))
+    │   │       │       - type = Ptr(Struct('simu'))
+    │   │       │       - source = ValSSA()
+    │   │       │       - builder = <Builder ... >
+    │   │       └── ValPtr._store([], ValSSA())  ← None
+    │   └── Factory.from_val  ← ValScalar(addr, Scalar(i64))
+    │       │       - type = Scalar(i64)
+    │       │       - value = ValSSA()
+    │       │       - builder = <Builder ... >
+    │       └── ValScalar.init_from  ← ValScalar(addr, Scalar(i64))
+    │           │       - type = Scalar(i64)
+    │           │       - source = ValSSA()
+    │           │       - builder = <Builder ... >
+    │           └── ValScalar._store([], ValSSA())  ← None
+    └── CodegenBlock  ← (<Block ... >, [ValScalar(addr, Scalar(i64))])
+        │       - content = [VarOp]
+        │       - block = <Block ... >
+        └── VarOp('simuReference', ['*', 'positions', '*', 'coords', '*', 3, 'y'])  ← [ValScalar(addr, Scalar(i64))]
+            └── ValPtr._load(['*', 'positions', '*', 'coords', '*', <OpResult name_hint: const3.index, index: 0, operation: arith.constant, uses: 0>, 'y'])  ← ValScalar(addr, Scalar(i64))
+                ├── Factory.from_val  ← ValStruct(addr, Struct('simu'))
+                │   │       - type = Struct('simu')
+                │   │       - value = ValSSA()
+                │   │       - builder = <Builder ... >
+                │   └── ValStruct.init_from  ← ValStruct(addr, Struct('simu'))
+                │       │       - type = Struct('simu')
+                │       │       - source = ValSSA()
+                │       │       - builder = <Builder ... >
+                └── ValStruct._load(['positions', '*', 'coords', '*', <OpResult name_hint: const3.index, index: 0, operation: arith.constant, uses: 0>, 'y'])  ← ValScalar(addr, Scalar(i64))
+                    ├── Factory.from_val  ← ValPtr(addr, Ptr(Struct('noeuds')))
+                    │   │       - type = Ptr(Struct('noeuds'))
+                    │   │       - value = ValSSA()
+                    │   │       - builder = <Builder ... >
+                    │   └── ValPtr.init_from  ← ValPtr(addr, Ptr(Struct('noeuds')))
+                    │       │       - type = Ptr(Struct('noeuds'))
+                    │       │       - source = ValSSA()
+                    │       │       - builder = <Builder ... >
+                    │       └── ValPtr._store([], ValSSA())  ← None
+                    └── ValPtr._load(['*', 'coords', '*', <OpResult name_hint: const3.index, index: 0, operation: arith.constant, uses: 0>, 'y'])  ← ValScalar(addr, Scalar(i64))
+                        ├── Factory.from_val  ← ValStruct(addr, Struct('noeuds'))
+                        │   │       - type = Struct('noeuds')
+                        │   │       - value = ValSSA()
+                        │   │       - builder = <Builder ... >
+                        │   └── ValStruct.init_from  ← ValStruct(addr, Struct('noeuds'))
+                        │       │       - type = Struct('noeuds')
+                        │       │       - source = ValSSA()
+                        │       │       - builder = <Builder ... >
+                        └── ValStruct._load(['coords', '*', <OpResult name_hint: const3.index, index: 0, operation: arith.constant, uses: 0>, 'y'])  ← ValScalar(addr, Scalar(i64))
+                            ├── Factory.from_val  ← ValPtr(addr, Ptr(Memref(dims=[5], base=Struct('xyz'))))
+                            │   │       - type = Ptr(Memref(dims=[5], base=Struct('xyz')))
+                            │   │       - value = ValSSA()
+                            │   │       - builder = <Builder ... >
+                            │   └── ValPtr.init_from  ← ValPtr(addr, Ptr(Memref(dims=[5], base=Struct('xyz'))))
+                            │       │       - type = Ptr(Memref(dims=[5], base=Struct('xyz')))
+                            │       │       - source = ValSSA()
+                            │       │       - builder = <Builder ... >
+                            │       └── ValPtr._store([], ValSSA())  ← None
+                            └── ValPtr._load(['*', <OpResult name_hint: const3.index, index: 0, operation: arith.constant, uses: 0>, 'y'])  ← ValScalar(addr, Scalar(i64))
+                                ├── Factory.from_val  ← ValMemref(addr, Memref(dims=[5], base=Struct('xyz')))
+                                │   │       - type = Memref(dims=[5], base=Struct('xyz'))
+                                │   │       - value = ValSSA()
+                                │   │       - builder = <Builder ... >
+                                │   └── ValMemref.init_from  ← ValMemref(addr, Memref(dims=[5], base=Struct('xyz')))
+                                │       │       - type = Memref(dims=[5], base=Struct('xyz'))
+                                │       │       - source = ValSSA()
+                                │       │       - builder = <Builder ... >
+                                └── ValMemref._load([<OpResult name_hint: const3.index, index: 0, operation: arith.constant, uses: 0>, 'y'])  ← ValScalar(addr, Scalar(i64))
+                                    ├── Factory.from_SSA  ← ValStruct(addr, Struct('xyz'))
+                                    │   │       - type = Struct('xyz')
+                                    │   │       - addr = <OpResult name_hint: None, index: 0, operation: memref.load, uses: 0>
+                                    │   │       - builder = <Builder ... >
+                                    │   └── Factory.from_val  ← ValStruct(addr, Struct('xyz'))
+                                    │       │       - type = Struct('xyz')
+                                    │       │       - value = ValSSA()
+                                    │       │       - builder = <Builder ... >
+                                    │       └── ValStruct.init_from  ← ValStruct(addr, Struct('xyz'))
+                                    │           │       - type = Struct('xyz')
+                                    │           │       - source = ValSSA()
+                                    │           │       - builder = <Builder ... >
+                                    └── ValStruct._load(['y'])  ← ValScalar(addr, Scalar(i64))
+                                        └── Factory.from_val  ← ValScalar(addr, Scalar(i64))
+                                            │       - type = Scalar(i64)
+                                            │       - value = ValSSA()
+                                            │       - builder = <Builder ... >
+                                            └── ValScalar.init_from  ← ValScalar(addr, Scalar(i64))
+                                                │       - type = Scalar(i64)
+                                                │       - source = ValSSA()
+                                                │       - builder = <Builder ... >
+                                                └── ValScalar._store([], ValSSA())  ← None
+
+────── xDSL
+builtin.module {
+  func.func @xdsl_main(%simuReferenceArg: i64, %iArg: i64) -> i64 attributes {llvm.emit_c_interface} {
+    %const8.index = arith.constant 8 : index
+    %const0.index = arith.constant 0 : index
+    %const3.index = arith.constant 3 : index
+    %0 = memref.alloca() : memref<i64>
+    memref.store %simuReferenceArg, %0[] : memref<i64>
+    %1 = memref.alloca() : memref<i64>
+    memref.store %iArg, %1[] : memref<i64>
+    %2 = memref.load %0[] : memref<i64>
+    %3 = llvm.inttoptr %2 : i64 to !llvm.ptr
+    %4 = builtin.unrealized_conversion_cast %3 : !llvm.ptr to !ptr_xdsl.ptr
+    %5 = ptr_xdsl.from_ptr %4 : !ptr_xdsl.ptr -> memref<32xi8>
+    %6 = memref.view %5[%const0.index][] : memref<32xi8> to memref<i64>
+    %7 = memref.alloca() : memref<i64>
+    %8 = memref.load %6[] : memref<i64>
+    memref.store %8, %7[] : memref<i64>
+    %9 = memref.load %7[] : memref<i64>
+    %10 = llvm.inttoptr %9 : i64 to !llvm.ptr
+    %11 = builtin.unrealized_conversion_cast %10 : !llvm.ptr to !ptr_xdsl.ptr
+    %12 = ptr_xdsl.from_ptr %11 : !ptr_xdsl.ptr -> memref<16xi8>
+    %13 = memref.view %12[%const0.index][] : memref<16xi8> to memref<i64>
+    %14 = memref.alloca() : memref<i64>
+    %15 = memref.load %13[] : memref<i64>
+    memref.store %15, %14[] : memref<i64>
+    %16 = memref.load %14[] : memref<i64>
+    %17 = llvm.inttoptr %16 : i64 to !llvm.ptr
+    %18 = builtin.unrealized_conversion_cast %17 : !llvm.ptr to !ptr_xdsl.ptr
+    %19 = ptr_xdsl.from_ptr %18 : !ptr_xdsl.ptr -> memref<5xmemref<24xi8>>
+    %20 = memref.load %19[%const3.index] : memref<5xmemref<24xi8>>
+    %21 = memref.view %20[%const8.index][] : memref<24xi8> to memref<i64>
+    %22 = memref.alloca() : memref<i64>
+    %23 = memref.load %21[] : memref<i64>
+    memref.store %23, %22[] : memref<i64>
+    %24 = memref.load %22[] : memref<i64>
+    func.return %24 : i64
+  }
+}
+
+
+────── xDSL afte ConvertMemRefToPtr passe
+builtin.module {
+  func.func @xdsl_main(%simuReferenceArg: i64, %iArg: i64) -> i64 attributes {llvm.emit_c_interface} {
+    %const8.index = arith.constant 8 : index
+    %const0.index = arith.constant 0 : index
+    %const3.index = arith.constant 3 : index
+    %c1 = arith.constant 1 : i32
+    %0 = llvm.alloca %c1 x i64 {alignment = 32 : i64} : (i32) -> !llvm.ptr
+    %1 = builtin.unrealized_conversion_cast %0 : !llvm.ptr to !ptr_xdsl.ptr
+    %2 = ptr_xdsl.from_ptr %1 : !ptr_xdsl.ptr -> memref<i64>
+    %3 = ptr_xdsl.to_ptr %2 : memref<i64> -> !ptr_xdsl.ptr
+    ptr_xdsl.store %simuReferenceArg, %3 : i64, !ptr_xdsl.ptr
+    %c1_1 = arith.constant 1 : i32
+    %4 = llvm.alloca %c1_1 x i64 {alignment = 32 : i64} : (i32) -> !llvm.ptr
+    %5 = builtin.unrealized_conversion_cast %4 : !llvm.ptr to !ptr_xdsl.ptr
+    %6 = ptr_xdsl.from_ptr %5 : !ptr_xdsl.ptr -> memref<i64>
+    %7 = ptr_xdsl.to_ptr %6 : memref<i64> -> !ptr_xdsl.ptr
+    ptr_xdsl.store %iArg, %7 : i64, !ptr_xdsl.ptr
+    %8 = ptr_xdsl.to_ptr %2 : memref<i64> -> !ptr_xdsl.ptr
+    %9 = ptr_xdsl.load %8 : !ptr_xdsl.ptr -> i64
+    %10 = llvm.inttoptr %9 : i64 to !llvm.ptr
+    %11 = builtin.unrealized_conversion_cast %10 : !llvm.ptr to !ptr_xdsl.ptr
+    %12 = ptr_xdsl.from_ptr %11 : !ptr_xdsl.ptr -> memref<32xi8>
+    %13 = memref.view %12[%const0.index][] : memref<32xi8> to memref<i64>
+    %c1_2 = arith.constant 1 : i32
+    %14 = llvm.alloca %c1_2 x i64 {alignment = 32 : i64} : (i32) -> !llvm.ptr
+    %15 = builtin.unrealized_conversion_cast %14 : !llvm.ptr to !ptr_xdsl.ptr
+    %16 = ptr_xdsl.from_ptr %15 : !ptr_xdsl.ptr -> memref<i64>
+    %17 = ptr_xdsl.to_ptr %13 : memref<i64> -> !ptr_xdsl.ptr
+    %18 = ptr_xdsl.load %17 : !ptr_xdsl.ptr -> i64
+    %19 = ptr_xdsl.to_ptr %16 : memref<i64> -> !ptr_xdsl.ptr
+    ptr_xdsl.store %18, %19 : i64, !ptr_xdsl.ptr
+    %20 = ptr_xdsl.to_ptr %16 : memref<i64> -> !ptr_xdsl.ptr
+    %21 = ptr_xdsl.load %20 : !ptr_xdsl.ptr -> i64
+    %22 = llvm.inttoptr %21 : i64 to !llvm.ptr
+    %23 = builtin.unrealized_conversion_cast %22 : !llvm.ptr to !ptr_xdsl.ptr
+    %24 = ptr_xdsl.from_ptr %23 : !ptr_xdsl.ptr -> memref<16xi8>
+    %25 = memref.view %24[%const0.index][] : memref<16xi8> to memref<i64>
+    %c1_3 = arith.constant 1 : i32
+    %26 = llvm.alloca %c1_3 x i64 {alignment = 32 : i64} : (i32) -> !llvm.ptr
+    %27 = builtin.unrealized_conversion_cast %26 : !llvm.ptr to !ptr_xdsl.ptr
+    %28 = ptr_xdsl.from_ptr %27 : !ptr_xdsl.ptr -> memref<i64>
+    %29 = ptr_xdsl.to_ptr %25 : memref<i64> -> !ptr_xdsl.ptr
+    %30 = ptr_xdsl.load %29 : !ptr_xdsl.ptr -> i64
+    %31 = ptr_xdsl.to_ptr %28 : memref<i64> -> !ptr_xdsl.ptr
+    ptr_xdsl.store %30, %31 : i64, !ptr_xdsl.ptr
+    %32 = ptr_xdsl.to_ptr %28 : memref<i64> -> !ptr_xdsl.ptr
+    %33 = ptr_xdsl.load %32 : !ptr_xdsl.ptr -> i64
+    %34 = llvm.inttoptr %33 : i64 to !llvm.ptr
+    %35 = builtin.unrealized_conversion_cast %34 : !llvm.ptr to !ptr_xdsl.ptr
+    %36 = ptr_xdsl.from_ptr %35 : !ptr_xdsl.ptr -> memref<5xmemref<24xi8>>
+    %37 = ptr_xdsl.to_ptr %36 : memref<5xmemref<24xi8>> -> !ptr_xdsl.ptr
+    %bytes_per_element = ptr_xdsl.type_offset memref<24xi8> : index
+    %scaled_pointer_offset = arith.muli %const3.index, %bytes_per_element : index
+    %offset_pointer = ptr_xdsl.ptradd %37, %scaled_pointer_offset : (!ptr_xdsl.ptr, index) -> !ptr_xdsl.ptr
+    %38 = ptr_xdsl.load %offset_pointer : !ptr_xdsl.ptr -> memref<24xi8>
+    %39 = memref.view %38[%const8.index][] : memref<24xi8> to memref<i64>
+    %c1_4 = arith.constant 1 : i32
+    %40 = llvm.alloca %c1_4 x i64 {alignment = 32 : i64} : (i32) -> !llvm.ptr
+    %41 = builtin.unrealized_conversion_cast %40 : !llvm.ptr to !ptr_xdsl.ptr
+    %42 = ptr_xdsl.from_ptr %41 : !ptr_xdsl.ptr -> memref<i64>
+    %43 = ptr_xdsl.to_ptr %39 : memref<i64> -> !ptr_xdsl.ptr
+    %44 = ptr_xdsl.load %43 : !ptr_xdsl.ptr -> i64
+    %45 = ptr_xdsl.to_ptr %42 : memref<i64> -> !ptr_xdsl.ptr
+    ptr_xdsl.store %44, %45 : i64, !ptr_xdsl.ptr
+    %46 = ptr_xdsl.to_ptr %42 : memref<i64> -> !ptr_xdsl.ptr
+    %47 = ptr_xdsl.load %46 : !ptr_xdsl.ptr -> i64
+    func.return %47 : i64
+  }
+}
+

@@ -29,7 +29,7 @@ from xdsljson.variables.val.val_struct import ValStruct
 
 class Factory:
     @staticmethod
-    @trace_step("Factory.from_val")
+    @trace_step("Factory.from_val", display_entry=True)
     def from_val(type: TyNode, value: ValNode, builder: Builder) -> ValNode:
         match type:
             case TyPtr():

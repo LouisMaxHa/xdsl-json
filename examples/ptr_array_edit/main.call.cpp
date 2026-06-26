@@ -4,14 +4,14 @@
 #include <iostream>
 
 extern "C" {
-int64_t _mlir_ciface_xdsl_main(MemRefType<int64_t, 1> *array, int size);
+int64_t _mlir_ciface_xdsl_main(uintptr_t data_ptr, uint64_t size);
 }
 
 int main() {
   int64_t myDataBase[5] = {10, 11, 12, 13, 14};
   int64_t myData[5] = {10, 11, 12, 13, 14};
-  size_t size = 5;
-  MemRefType<int64_t, 1> myMemref = make_memref_1d<int64_t>(myData, 5, 1);
+  uint64_t size = 5;
+  uintptr_t data_ptr = (uintptr_t)myData;
 
   std::cout << "Array before:" << std::endl;
   for (auto i : myData) {
@@ -19,7 +19,7 @@ int main() {
   }
   std::cout << std::endl;
 
-  const int64_t result = _mlir_ciface_xdsl_main(&myMemref, size);
+  const int64_t result = _mlir_ciface_xdsl_main(data_ptr, size);
 
   std::cout << "Array after:" << std::endl;
   for (auto i : myData) {

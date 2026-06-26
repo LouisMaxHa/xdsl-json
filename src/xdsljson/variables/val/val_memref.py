@@ -94,12 +94,12 @@ class ValMemref(ValNode):
         # Load
         op = LoadOp.get(self.addr, consuming)
         builder.insert(op)
-        ValNode = Factory.from_SSA(self.ty.base, op.results[0], builder)
+        valNode = Factory.from_SSA(self.ty.base, op.results[0], builder)
 
         # Recurse
         if remaining:
-            return ValNode.load(remaining, builder)
-        return ValNode
+            return valNode.load(remaining, builder)
+        return valNode
 
     # ──────────── Store ────────────
     def _store(

@@ -67,11 +67,22 @@ class ValStruct(ValNode):
 
         assert len(index) > 0
         assert isinstance(index[0], str)
-        return Factory.from_val(
-            self.ty.struct.FIELDS[index[0]].TYPE,
-            ValSSA(self._get_field(index[0], builder)),
+
+        # Split index
+        consuming = index[0]
+        remaining = index[1::]
+
+        # Load
+        valNode = Factory.from_val(
+            self.ty.struct.FIELDS[consuming].TYPE,
+            ValSSA(self._get_field(consuming, builder)),
             builder
         )
+
+        # Recurse
+        if remaining:
+            return valNode.load(remaining, builder)
+        return valNode
 
 
     # ──────────── Store ────────────
@@ -116,7 +127,7 @@ class ValStruct(ValNode):
         struct = self.ty.struct
         field = struct.FIELDS[field_name]
         field_ty = struct.FIELDS[field_name].TYPE
-        assert struct.SIZE % field.SIZE == 0
+        assert struct.SIZE % field.SIZE == 0, f"{struct.SIZE} % {field.SIZE} == {struct.SIZE % field.SIZE}"
 
 
         # Get dimensions

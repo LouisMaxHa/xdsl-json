@@ -1,0 +1,44 @@
+{
+  "op": "module",
+  "body": [
+    { "op": "define struct",
+      "name": "xyz",
+      "size": 24,
+      "fields": [
+        [ "x", "i64",  0, 8 ],
+        [ "y", "i64",  8, 8 ],
+        [ "z", "i64", 16, 8 ]
+      ]
+    },
+    { "op": "define struct",
+      "name": "noeuds",
+      "size": 16,
+      "fields": [
+        [ "coords", {"addr": {"memref": [5, {"struct": "xyz"}]}},  0,  8 ],
+        [ "size", "i64",  8, 8 ]
+      ]
+    },
+    { "op": "define struct",
+      "name": "simu",
+      "size": 32,
+      "fields": [
+        [ "positions", {"addr": {"struct": "noeuds"}},  0,  16 ],
+        [ "temperature", {"addr": {"struct": "noeuds"}},  16,  16]
+      ]
+    },
+
+    { "op": "function",
+      "name": "xdsl_main",
+      "args": [
+          ["simuReference", {"addr":  {"struct": "simu"}}],
+          ["i", "i64"]
+      ],
+      "body": [
+      { "op": "var",
+        "name": "simuReference" ,
+        "indices": ["*", "positions", "*", "coords", "*", 3, "y"]
+      }
+      ]
+    }
+  ]
+}
