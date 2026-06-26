@@ -8,8 +8,8 @@ int64_t _mlir_ciface_xdsl_main(MemRefType<int64_t, 1> *array, int size);
 }
 
 int main() {
-  int64_t myDataBase[5] = {10, 11, 12, 13, 14};
   int64_t myData[5] = {10, 11, 12, 13, 14};
+  int64_t expected[5] = {11, 12, 13, 14, 15};
   size_t size = 5;
   MemRefType<int64_t, 1> myMemref = make_memref_1d<int64_t>(myData, 5, 1);
 
@@ -29,7 +29,7 @@ int main() {
 
   // TESTS
   for (int i = 0; i < 5; i++) {
-    std::cout << "EXPECTED '" << myDataBase[i] + 1 << "', got '" << myData[i] << "'" << std::endl;
+    std::cout << "EXPECTED '" << expected[i] << "', got '" << myData[i] << "'" << std::endl;
   }
 
 

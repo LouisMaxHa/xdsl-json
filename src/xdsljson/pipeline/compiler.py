@@ -82,15 +82,16 @@ XDSL_OPT_PASSES: list[
 ]
 
 MLIR_OPT_PASSES: list[str] = [
-    #"--loop-invariant-code-motion",
-    #"--cse",
-    #"--canonicalize",
-    #"--symbol-dce",
-    #"--mem2reg", # incompatible avec memref.alloca et scf.while ??
-    #"--expand-strided-metadata",
-    #"--normalize-memrefs",
-    # "--memref-expand",
-    # "--fold-memref-alias-ops",
+    "--convert-index-to-llvm",
+    "--loop-invariant-code-motion",
+    "--cse",
+    "--canonicalize",
+    "--symbol-dce",
+    "--mem2reg", # incompatible avec memref.alloca et scf.while ??
+    "--expand-strided-metadata",
+    "--normalize-memrefs",
+    "--memref-expand",
+    "--fold-memref-alias-ops",
 ]
 
 MLIR_OPT_LOWER_TO_LLVM: Sequence[str] = [
