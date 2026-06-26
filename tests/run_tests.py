@@ -227,6 +227,9 @@ def run_all_examples(project_root: Path | None = None) -> list[ResultInfo]:
 
         if infos.status == ResultStats.OK:
             console.print(infos.message)
+        else:
+            console.print("")
+
         results.append(infos)
 
     print_summary(results)

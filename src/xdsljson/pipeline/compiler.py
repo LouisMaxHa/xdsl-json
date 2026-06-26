@@ -81,16 +81,16 @@ XDSL_OPT_PASSES: list[
     ConvertPtrToLLVMPass,
 ]
 
-MLIR_OPT_PASSES: Sequence[str] = [
-    "--loop-invariant-code-motion",
-    "--cse",
-    "--canonicalize",
-    "--symbol-dce",
-    "--mem2reg", # incompatible avec memref.alloca et scf.while ??
-    "--expand-strided-metadata",
-    "--normalize-memrefs",
-    "--memref-expand",
-    "--fold-memref-alias-ops",
+MLIR_OPT_PASSES: list[str] = [
+    #"--loop-invariant-code-motion",
+    #"--cse",
+    #"--canonicalize",
+    #"--symbol-dce",
+    #"--mem2reg", # incompatible avec memref.alloca et scf.while ??
+    #"--expand-strided-metadata",
+    #"--normalize-memrefs",
+    # "--memref-expand",
+    # "--fold-memref-alias-ops",
 ]
 
 MLIR_OPT_LOWER_TO_LLVM: Sequence[str] = [
@@ -155,6 +155,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "xDSL",
         path_xdsl,
     )
+    if path_last_print is not None:
+        path_last_print.write_text(path_xdsl.read_text())
+
 
     # xDSL passes
     for passe in XDSL_OPT_PASSES:
@@ -179,14 +182,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     # Verify
-    module.verify()
+    # module.verify()
 
     # MLIR passes
     run_mlir_opt(
         toolchain,
         path_mlir,
         path_optimized,
-        MLIR_OPT_PASSES
+        MLIR_OPT_PASSES,
+        display_passes=args.mlir_passes
     )
     print_if(
         args.mlir_opti,

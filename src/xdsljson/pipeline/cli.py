@@ -11,7 +11,8 @@ from pathlib import Path
 _FLAG_ALIASES: dict[str, str] = {
     "T": "--tree",
     "x": "--xdsl",
-    "P": "--xdsl_passes",
+    "p": "--xdsl_passes",
+    "P": "--mlir_passes",
     "m": "--mlir",
     "M": "--mlir_opti",
     "l": "--mlir_llvm",
@@ -81,10 +82,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Print the xDSL IR.",
     )
     parser.add_argument(
-        "-P",
+        "-p",
         "--xdsl_passes",
         action="store_true",
         help="Print the xDSL IR after each pass.",
+    )
+    parser.add_argument(
+        "-P",
+        "--mlir_passes",
+        action="store_true",
+        help="Print the IR after each MLIR pass.",
     )
     parser.add_argument(
         "-m",

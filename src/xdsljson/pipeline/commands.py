@@ -154,6 +154,10 @@ def run_command(cmd: Sequence[str]) -> str:
         print(f"Error when running {name} :", file=sys.stderr)
         print("Full command:", " ".join(cmd).replace(" -", "\n\t-"))
         print()
+
+        if exc.stdout:
+            print("stdout:", exc.stdout)
+
         print('\033[91m' + exc.stderr + '\033[0m', file=sys.stderr)
         exit(1)
 
@@ -171,13 +175,17 @@ def run_mlir_opt(
     toolchain: Toolchain,
     input_path: Path,
     output_path: Path,
-    passes: Sequence[str]
+    passes: list[str],
+    display_passes: bool = False
 ):
+    if display_passes:
+        passes.append("--mlir-print-ir-after-all")
+
     run_command([
         str(toolchain.mlir_opt),
         *passes,
         str(input_path),
-        "-o", str(output_path)
+        "-o", str(output_path),
     ])
 
 # MLIR dialect LLVM -> LLVM
