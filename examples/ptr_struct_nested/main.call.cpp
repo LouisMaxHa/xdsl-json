@@ -1,10 +1,11 @@
 #include "../memref_bridge.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 
 extern "C" {
-int64_t _mlir_ciface_xdsl_main(uintptr_t data_ptr);
+int64_t _mlir_ciface_xdsl_main(uintptr_t data_ptr, size_t i);
 }
 
 struct xyz {
@@ -23,21 +24,26 @@ struct Simulation {
   Noeuds* temperatures;
 };
 
+int ctr = 0;
+int get_value(){
+  return ctr++;
+}
+
 int main() {
 
   // ──────────── Tableaux contenant les informations ────────────
   xyz* coords_positions = new xyz[5];
   for (int i=0; i<5; i++){
-    coords_positions[i].x = i * 3 + 0;
-    coords_positions[i].y = i * 3 + 1;
-    coords_positions[i].z = i * 3 + 2;
+    coords_positions[i].x = get_value();
+    coords_positions[i].y = get_value();
+    coords_positions[i].z = get_value();
   }
 
   xyz* coords_temperatures = new xyz[5];
   for (int i=0; i<5; i++){
-    coords_temperatures[i].x = (i + 5) * 3 + 0;
-    coords_temperatures[i].y = (i + 5) * 3 + 1;
-    coords_temperatures[i].z = (i + 5) * 3 + 2;
+    coords_temperatures[i].x = get_value();
+    coords_temperatures[i].y = get_value();
+    coords_temperatures[i].z = get_value();
   }
 
   // ──────────── Description des tableaux ────────────
@@ -56,8 +62,15 @@ int main() {
 
   uintptr_t simu_ptr = (uintptr_t)simu;
 
-  const int64_t result = _mlir_ciface_xdsl_main(simu_ptr);
-  std::cout << " EXPECTED '" 
-    << simu->positions->coords[3].y
-    << "', got '" << result << "'" << std::endl;
+  std::cout << "Offset temperatures : " << offsetof(Simulation, temperatures) << std::endl;
+
+
+  for (int i=0; i < 5; i++) {
+    const int64_t result = _mlir_ciface_xdsl_main(simu_ptr, i);
+    std::cout << " EXPECTED '" 
+      << simu->temperatures->coords[i].y
+      << "', got '" << result << "'" << std::endl;
+  
+  
+  }
 }

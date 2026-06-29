@@ -14,16 +14,16 @@
       "name": "noeuds",
       "size": 16,
       "fields": [
-        [ "coords", {"addr": {"memref": [5, {"struct": "xyz"}]}},  0,  8 ],
-        [ "size", "i64",  8, 8 ]
+        [ "coords", {"addr": {"memref": [null, {"struct": "xyz"}]}},  0,  8 ],
+        [ "index", "i64",  8, 8 ]
       ]
     },
     { "op": "define struct",
       "name": "simu",
       "size": 32,
       "fields": [
-        [ "positions", {"addr": {"struct": "noeuds"}},  0,  16 ],
-        [ "temperature", {"addr": {"struct": "noeuds"}},  16,  16]
+        [ "positions", {"addr": {"struct": "noeuds"}},  0,  8 ],
+        [ "temperatures", {"addr": {"struct": "noeuds"}},  8,  8]
       ]
     },
 
@@ -31,12 +31,12 @@
       "name": "xdsl_main",
       "args": [
           ["simuReference", {"addr":  {"struct": "simu"}}],
-          ["i", "i64"]
+          ["i", "index"]
       ],
       "body": [
       { "op": "var",
         "name": "simuReference" ,
-        "indices": ["*", "positions", "*", "coords", "*", 3, "y"]
+        "indices": ["*", "temperatures", "*", "coords", "*", {"name": "i"}, "y"]
       }
       ]
     }
