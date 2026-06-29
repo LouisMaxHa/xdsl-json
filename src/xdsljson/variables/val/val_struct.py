@@ -25,7 +25,7 @@ class ValStruct(ValNode):
         self, ty: TyStruct, addr: SSAValue
     ):
         assert isinstance(addr, SSAValue), f"got {addr}"
-        assert ty.get_type() == addr.type
+        assert ty.get_type() == addr.type, f"{ty.get_type()} == {addr.type}"
         self.addr = addr
         self.ty = ty
 

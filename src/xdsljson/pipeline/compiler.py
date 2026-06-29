@@ -19,6 +19,7 @@ from xdsljson.pipeline.commands import (
     init_xdsl,
     link_executable,
     load_input_file,
+    run_llvm_opt,
     run_mlir_opt,
     set_display_cmd,
     xdsl_to_mlir,
@@ -106,7 +107,13 @@ MLIR_OPT_LOWER_TO_LLVM: Sequence[str] = [
     "convert-cf-to-llvm",
     "convert-func-to-llvm",
     "convert-arith-to-llvm",
+    "canonicalize",
     "reconcile-unrealized-casts",
+]
+
+LLVM_OPT_PASSES: list[str] = [
+    "--O2",
+    "--S"
 ]
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -128,9 +135,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     path_call       = input_path.with_suffix(".call.cpp")
     path_xdsl       = build_dir / f"{stem}.xdsl.mlir"
     path_mlir       = build_dir / f"{stem}.mlir"
-    path_optimized  = build_dir / f"{stem}.mlir.opt"
-    path_llvm_mlir  = build_dir / f"{stem}.llvm.mlir"
+    path_mlir_opti  = build_dir / f"{stem}.opt.mlir"
+    path_mlir_llvm  = build_dir / f"{stem}.llvm.mlir"
     path_llvm       = build_dir / f"{stem}.ll"
+    path_llvm_opti  = build_dir / f"{stem}.opt.ll"
     path_object     = input_path.with_suffix(".o")
     path_runnable   = input_path.with_suffix(".out")
     path_last_print = build_dir / f"{stem}.last.ir"
@@ -189,14 +197,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_mlir_opt(
         toolchain,
         path_mlir,
-        path_optimized,
+        path_mlir_opti,
         MLIR_OPT_PASSES,
         display_passes=args.mlir_passes
     )
     print_if(
         args.mlir_opti,
         "Optimized MLIR",
-        path_optimized,
+        path_mlir_opti,
         last_print_path=path_last_print,
     )
 
@@ -204,21 +212,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     passes = f"builtin.module({','.join(MLIR_OPT_LOWER_TO_LLVM)})"
     run_mlir_opt(
         toolchain,
-        path_optimized,
-        path_llvm_mlir,
+        path_mlir_opti,
+        path_mlir_llvm,
         [f"--pass-pipeline={passes}"]
     )
     print_if(
         args.mlir_llvm,
         "MLIR LLVM dialect",
-        path_llvm_mlir,
+        path_mlir_llvm,
         last_print_path=path_last_print,
     )
 
     # llvm mlir -> llvm
     convert_to_llvm(
         toolchain,
-        path_llvm_mlir,
+        path_mlir_llvm,
         path_llvm
     )
     print_if(
@@ -228,10 +236,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         last_print_path=path_last_print,
     )
 
+    # llvm -> optimized llvm
+    run_llvm_opt(
+        toolchain,
+        path_llvm,
+        path_llvm_opti,
+        LLVM_OPT_PASSES
+    )
+    print_if(
+        args.llvm,
+        "Optimized llvm",
+        path_llvm_opti,
+        last_print_path=path_last_print,
+    )
+
     # llvm -> objet relocatable (.o)
     compile_llvm_to_object(
         toolchain,
-        path_llvm,
+        path_llvm_opti,
         path_object,
     )
 

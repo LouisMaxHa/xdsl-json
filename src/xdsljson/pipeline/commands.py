@@ -69,6 +69,7 @@ class Toolchain:
 
     mlir_opt: Path
     mlir_translate: Path
+    llvm_opt: Path
     llc: Path
     clangxx: Path
 
@@ -91,7 +92,7 @@ class Toolchain:
         if env_dir:
             search_dirs.append(Path(env_dir).expanduser().resolve())
 
-        names = ("mlir-opt", "mlir-translate", "llc", "clang++")
+        names = ("mlir-opt", "mlir-translate", "opt", "llc", "clang++")
         resolved: dict[str, Path] = {}
 
         for name in names:
@@ -122,6 +123,7 @@ class Toolchain:
         return cls(
             mlir_opt=resolved["mlir-opt"],
             mlir_translate=resolved["mlir-translate"],
+            llvm_opt=resolved["opt"],
             llc=resolved["llc"],
             clangxx=resolved["clang++"],
         )
@@ -199,6 +201,20 @@ def convert_to_llvm(
         "--mlir-to-llvmir",
         str(input_path),
         "-o", str(output_path)
+    ])
+
+# LLVM -> fichier objet relocatable (.o)
+def run_llvm_opt(
+    toolchain: Toolchain,
+    input_path: Path,
+    output_path: Path,
+    passes: list[str],
+):
+    run_command([
+        str(toolchain.llvm_opt),
+        *passes,
+        str(input_path),
+        "-o", str(output_path),
     ])
 
 # LLVM -> fichier objet relocatable (.o)

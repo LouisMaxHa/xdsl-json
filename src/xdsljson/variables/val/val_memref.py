@@ -5,17 +5,21 @@ from sqlite3 import NotSupportedError
 
 from xdsl.builder import Builder
 from xdsl.dialects import memref
+from xdsl.dialects.arith import MuliOp
 from xdsl.dialects.builtin import MemRefType
-from xdsl.dialects.memref import LoadOp
+from xdsl.dialects.memref import LoadOp, SubviewOp
 from xdsl.ir import Attribute, SSAValue
 from xdsl.parser import DYNAMIC_INDEX
 
 from xdsljson.trace import trace_step
+from xdsljson.utils.enum_scalars import Scalar
 from xdsljson.utils.ssa_check import all_ssavalues
 from xdsljson.utils.ssa_dim import dimensions_to_ssa
+from xdsljson.utils.ssa_val import idx_to_ssavalues, val_to_SSAValues
 from xdsljson.variables.ty.ty import TyNode
 from xdsljson.variables.ty.ty_memref import TyMemref
 from xdsljson.variables.ty.ty_SSA import TySSA
+from xdsljson.variables.ty.ty_struct import TyStruct
 from xdsljson.variables.val.val import ValNode
 
 
@@ -93,7 +97,22 @@ class ValMemref(ValNode):
         assert all_ssavalues(consuming)
 
         # Load
-        op = LoadOp.get(self.addr, consuming)
+        if isinstance(self.ty.base, TyStruct):
+            assert len(self.ty.dimensions) == 1, "Array of struct supported for only 1D"
+            offsets = [builder.insert(
+                MuliOp(consuming[0], idx_to_ssavalues(self.ty.base.struct.SIZE, builder))).results[0]
+            ]
+
+            op = SubviewOp.get(
+                self.addr,
+                offsets,
+                val_to_SSAValues(self.ty.base.struct.SIZE, Scalar.idx, builder),
+                val_to_SSAValues(1, Scalar.idx, builder),
+                self.ty.base.get_type()
+            )
+
+        else:
+            op = LoadOp.get(self.addr, consuming)
         builder.insert(op)
         valNode = Factory.from_SSA(self.ty.base, op.results[0], builder)
 

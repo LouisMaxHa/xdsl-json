@@ -5,7 +5,9 @@ from dataclasses import dataclass
 
 from xdsl.dialects.builtin import DYNAMIC_INDEX, MemRefType
 
+from xdsljson.utils.enum_scalars import Scalar
 from xdsljson.variables.ty.ty import TyNode
+from xdsljson.variables.ty.ty_struct import TyStruct
 
 
 @dataclass(frozen=True)
@@ -19,7 +21,18 @@ class TyMemref(TyNode):
     def get_type(self) -> MemRefType:
         dimension = [d or DYNAMIC_INDEX for d in self.dimensions]
 
-        return MemRefType(self.base.get_type(), dimension)
+        if isinstance(self.base, TyStruct):
+            struct_size = self.base.struct.SIZE
+            dimension[-1] *= struct_size
+            return MemRefType(
+                Scalar.i8.get_type(),
+                dimension
+            )
+
+        return MemRefType(
+            self.base.get_type(),
+            dimension
+        )
 
     def get_memref_type(self) -> MemRefType:
         return self.get_type()
