@@ -20,7 +20,8 @@ class ConstOp(OpNode):
     val: float | int
     type: Scalar = Scalar.i64
 
-    def __init__(self, val: float | int = 0, type: Scalar = Scalar.i64, **data):
+    def __init__(self, *args, type: Scalar = Scalar.i64, **data):
+        val: float | int | None = args[0] if args else data.pop("val", None)
         super().__init__(val=val, type=type, **data)
 
     @trace_step("ConstOp({self.val}, {self.type})")
