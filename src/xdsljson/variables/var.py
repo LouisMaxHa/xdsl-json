@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class Var:
     name: str
     indices: Sequence[VarOp | int | str]
-    # type: TyNode | None = None
+    type: TyNode | None = None
 
     def __init__(
         self, name: str, indices: Sequence[VarOp | int | str], type: TyNode | None
