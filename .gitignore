@@ -1,9 +1,9 @@
-.ll 
-.o
-.s
-.mlir
-.opt
-.out
+*.ll
+*.o
+*.s
+*.mlir
+*.opt
+*.out
 
 
 # Byte-compiled / optimized / DLL files

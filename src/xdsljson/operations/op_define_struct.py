@@ -19,8 +19,23 @@ class DefineStructOp(OpNode):
     size: int
     fields: Sequence[FIELD_TYPE] # name, type, offset, Size
 
-    def __init__(self, name: str, size: int, fields: Sequence[FIELD_TYPE], **data):
-        super().__init__(name=name, size=size, fields=fields, **data)
+    def __init__(
+        self,
+        name: str,
+        size: int,
+        fields: Sequence[tuple(str, str, int, int)],
+        **data
+    ):
+        fields_structs = [
+            FIELD_TYPE(n, t, start, s)
+            for n, t, start, s in fields
+        ]
+        super().__init__(
+            name=name,
+            size=size,
+            fields=fields_structs,
+            **data
+        )
 
 
     # TODO: Need to insert it with builder ?
