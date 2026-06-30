@@ -22,6 +22,9 @@ class WhileOp(OpNode):
     cond: BaseValue
     thenBlock: Sequence[BaseValue]
 
+    def __init__(self, cond=None, thenBlock=None, **data):
+        super().__init__(cond=cond, thenBlock=thenBlock or [], **data)
+
     @trace_step("WhileOp")
     def codegen(self, builder: Builder) -> Sequence[ValNode]:
         # Condition block

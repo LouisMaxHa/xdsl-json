@@ -4,7 +4,7 @@
 #include <iostream>
 
 extern "C" {
-int64_t _mlir_ciface_xdsl_main(uintptr_t data_ptr, uint64_t size);
+  void _mlir_ciface_xdsl_main(uintptr_t data_ptr, uint64_t size);
 }
 
 int main() {
@@ -19,7 +19,7 @@ int main() {
   }
   std::cout << std::endl;
 
-  const int64_t result = _mlir_ciface_xdsl_main(data_ptr, size);
+  _mlir_ciface_xdsl_main(data_ptr, size);
 
   std::cout << "Array after:" << std::endl;
   for (auto i : myData) {
@@ -32,8 +32,5 @@ int main() {
     std::cout << "EXPECTED '" << myDataBase[i] + 1 << "', got '" << myData[i]
               << "'" << std::endl;
   }
-
-  std::cout << "return EXPECTED '" << myDataBase[2] + 1 << "', got '" << result
-            << "'" << std::endl;
   return 0;
 }

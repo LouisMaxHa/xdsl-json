@@ -18,8 +18,8 @@ module = Module([
         "xdsl_main",
         [("max", TyScalar(Scalar.i64))],
         [
-            Set(Var("toto", "i64"), Const(0)),
-            Set(Var("i",    "i64"), Const(0)),
+            Set(Var(name="toto", type="i64"), Const(0)),
+            Set(Var(name="i",    type="i64"), Const(0)),
             While(
                 Binary(Var("i"), Var("max"), "<"),
                 [

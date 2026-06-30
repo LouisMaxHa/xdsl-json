@@ -23,6 +23,9 @@ class ModuleJsonOp(OpNode):
     op: Literal["module"] = "module"
     body: Sequence[ModuleStatement]
 
+    def __init__(self, body=None, **data):
+        super().__init__(body=body or [], **data)
+
     @trace_step("ModuleJsonOp")
     def codegen(self, builder: Builder) -> Sequence[ValNode]:
         structs_type.clear()

@@ -19,6 +19,20 @@ class VarOp(OpNode, Var):
     indices: Sequence[VarOp | int | str] = Field(default_factory=list)
     type: TyNode | None = None
 
+    def __init__(
+        self,
+        name: str = "",
+        indices: Sequence[VarOp | int | str] | None = None,
+        type: TyNode | None = None,
+        **data,
+    ):
+        super().__init__(
+            name=name,
+            indices=indices if indices is not None else [],
+            type=type,
+            **data,
+        )
+
     # TODO: rename load to avoid confusion with get_SSA that dont use index
     @trace_step("VarOp({self.name}, {self.indices})")
     def codegen(self, builder: Builder) -> Sequence[ValNode]:

@@ -24,6 +24,9 @@ class SetOp(OpNode):
     var: VarOp
     val: BinaryOp | ConstOp | VarOp
 
+    def __init__(self, var=None, val=None, **data):
+        super().__init__(var=var, val=val, **data)
+
     @trace_step("SetOp({self.var.name})")
     def codegen(self, builder: Builder) -> Sequence[ValNode]:
 
