@@ -19,6 +19,10 @@ class DefineStructOp(OpNode):
     size: int
     fields: Sequence[FIELD_TYPE] # name, type, offset, Size
 
+    def __init__(self, name: str, size: int, fields: Sequence[FIELD_TYPE], **data):
+        super().__init__(name=name, size=size, fields=fields, **data)
+
+
     # TODO: Need to insert it with builder ?
     @trace_step("DefineStructOp")
     def codegen(self, builder: Builder) -> Sequence[ValNode]:
