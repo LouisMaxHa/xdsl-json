@@ -22,5 +22,11 @@ class STRUCTS_TYPE(NamedTuple):
     FIELDS: dict[str, FIELD_TYPE]
 
 
+class FunctionSignature(NamedTuple):
+    args: list[tuple[str, TyNode]]
+    return_types: list[TyNode]
+
+
 structs_type: dict[str, STRUCTS_TYPE] = {}
 variables_heap: dict[str, ValNode] = {}
+functions_registry: dict[str, FunctionSignature] = {}

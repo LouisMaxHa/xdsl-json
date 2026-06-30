@@ -19,7 +19,7 @@ from xdsljson.variables.ty.ty import TyNode
 from xdsljson.variables.val.val import ValNode
 from xdsljson.variables.val.val_SSA import ValSSA
 
-
+availables_functions = {}
 class FunctionOp(OpNode):
     op: Literal["function"] = "function"
     name: str
