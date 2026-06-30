@@ -43,8 +43,7 @@
                 }
             }
           ]
-        },
-        { "op": "var", "name": "myArrayReference" , "indices": ["*", 2]}
+        }
         ]
       }
     ]

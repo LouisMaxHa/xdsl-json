@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Any
+
+from xdsl.ir import Attribute
 from xdsl.parser import MemRefType
 
 """ABC commune aux types valeur (scalaires, struct, array).
@@ -16,11 +20,6 @@ partout où un champ est annoté ``TyNode``. Les formes acceptées sont :
 - addr     : ``{"addr"  : base}``
 """
 
-
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
-
-from xdsl.ir import Attribute
 
 if TYPE_CHECKING:
     from pydantic import GetCoreSchemaHandler

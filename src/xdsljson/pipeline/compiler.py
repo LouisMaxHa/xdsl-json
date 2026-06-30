@@ -10,6 +10,7 @@ from xdsl.transforms.convert_ptr_to_llvm import ConvertPtrToLLVMPass
 from xdsl.transforms.convert_ptr_type_offsets import ConvertPtrTypeOffsetsPass
 from xdsl.transforms.reconcile_unrealized_casts import ReconcileUnrealizedCastsPass
 
+from xdsljson.operations.op_module import ModuleJsonOp
 from xdsljson.pipeline.cli import parse_args
 from xdsljson.pipeline.commands import (
     Toolchain,
@@ -19,7 +20,6 @@ from xdsljson.pipeline.commands import (
     init_xdsl,
     link_executable,
     load_input_file,
-    run_llvm_opt,
     run_mlir_opt,
     set_display_cmd,
     xdsl_to_mlir,
@@ -83,7 +83,6 @@ XDSL_OPT_PASSES: list[
 ]
 
 MLIR_OPT_PASSES: list[str] = [
-    "--convert-index-to-llvm",
     "--loop-invariant-code-motion",
     "--cse",
     "--canonicalize",
@@ -107,16 +106,20 @@ MLIR_OPT_LOWER_TO_LLVM: Sequence[str] = [
     "convert-cf-to-llvm",
     "convert-func-to-llvm",
     "convert-arith-to-llvm",
-    "canonicalize",
     "reconcile-unrealized-casts",
 ]
 
-LLVM_OPT_PASSES: list[str] = [
-    "--O2",
-    "--S"
-]
-
 def main(argv: Sequence[str] | None = None) -> int:
+    args = parse_args(argv)
+    input_path = args.input
+
+    # Json -> Pydantic AST
+    data = load_input_file(input_path)
+    module_ast = build_sample_ast_json(data)
+    return compiler(module_ast, argv)
+
+
+def compiler(module_ast: ModuleJsonOp, argv: Sequence[str] | None = None) -> int:
     # Read params and configuration
     args = parse_args(argv)
     configure_trace()
@@ -135,19 +138,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     path_call       = input_path.with_suffix(".call.cpp")
     path_xdsl       = build_dir / f"{stem}.xdsl.mlir"
     path_mlir       = build_dir / f"{stem}.mlir"
-    path_mlir_opti  = build_dir / f"{stem}.opt.mlir"
-    path_mlir_llvm  = build_dir / f"{stem}.llvm.mlir"
+    path_optimized  = build_dir / f"{stem}.mlir.opt"
+    path_llvm_mlir  = build_dir / f"{stem}.llvm.mlir"
     path_llvm       = build_dir / f"{stem}.ll"
-    path_llvm_opti  = build_dir / f"{stem}.opt.ll"
     path_object     = input_path.with_suffix(".o")
     path_runnable   = input_path.with_suffix(".out")
     path_last_print = build_dir / f"{stem}.last.ir"
     if not args.show_diff:
         path_last_print = None
-
-    # Json -> Pydantic AST
-    data = load_input_file(input_path)
-    function_ast = build_sample_ast_json(data)
 
     # Pydantic -> xDSL
     if args.tree:
@@ -155,7 +153,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("────── Python AST")
         enable_trace(True)
     ctx, module, builder = init_xdsl()
-    function_ast.codegen(builder)
+    module_ast.codegen(builder)
 
     # Print
     xdsl_to_mlir(module, path_xdsl)
@@ -197,14 +195,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_mlir_opt(
         toolchain,
         path_mlir,
-        path_mlir_opti,
+        path_optimized,
         MLIR_OPT_PASSES,
         display_passes=args.mlir_passes
     )
     print_if(
         args.mlir_opti,
         "Optimized MLIR",
-        path_mlir_opti,
+        path_optimized,
         last_print_path=path_last_print,
     )
 
@@ -212,21 +210,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     passes = f"builtin.module({','.join(MLIR_OPT_LOWER_TO_LLVM)})"
     run_mlir_opt(
         toolchain,
-        path_mlir_opti,
-        path_mlir_llvm,
+        path_optimized,
+        path_llvm_mlir,
         [f"--pass-pipeline={passes}"]
     )
     print_if(
         args.mlir_llvm,
         "MLIR LLVM dialect",
-        path_mlir_llvm,
+        path_llvm_mlir,
         last_print_path=path_last_print,
     )
 
     # llvm mlir -> llvm
     convert_to_llvm(
         toolchain,
-        path_mlir_llvm,
+        path_llvm_mlir,
         path_llvm
     )
     print_if(
@@ -236,24 +234,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         last_print_path=path_last_print,
     )
 
-    # llvm -> optimized llvm
-    run_llvm_opt(
-        toolchain,
-        path_llvm,
-        path_llvm_opti,
-        LLVM_OPT_PASSES
-    )
-    print_if(
-        args.llvm,
-        "Optimized llvm",
-        path_llvm_opti,
-        last_print_path=path_last_print,
-    )
-
     # llvm -> objet relocatable (.o)
     compile_llvm_to_object(
         toolchain,
-        path_llvm_opti,
+        path_llvm,
         path_object,
     )
 

@@ -15,9 +15,7 @@ import yaml
 from pydantic import TypeAdapter
 from xdsl.builder import Builder
 from xdsl.context import Context
-from xdsl.dialects.builtin import (
-    ModuleOp,
-)
+from xdsl.dialects.builtin import ModuleOp as XDSLModuleOp
 from xdsl.printer import Printer
 from xdsl.rewriter import InsertPoint
 
@@ -57,9 +55,9 @@ def build_sample_ast_json(data: Any) -> ModuleJsonOp:
     return adapter.validate_python(data)
 
 # Get xDSL module and builder
-def init_xdsl() -> tuple[Context, ModuleOp, Builder]:
+def init_xdsl() -> tuple[Context, XDSLModuleOp, Builder]:
     ctx = Context()
-    module = ModuleOp([])
+    module = XDSLModuleOp([])
     builder = Builder(InsertPoint.at_end(module.body.block))
     return ctx, module, builder
 

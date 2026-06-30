@@ -12,7 +12,7 @@
           "var": { "op": "var", "name": "myArray", "type": {"memref": [5, "i64"]}},
           "val": { "op": "var", "name": "myArrayReference" , "indices": ["*"]}
       },
-      { "op": "var", "name": "myArray" , "indices": [{"name": "i"}]}
+      { "op": "var", "name": "myArray" , "indices": ["*", {"name": "i"}]}
       ]
     }
   ]

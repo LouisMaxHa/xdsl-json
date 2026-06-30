@@ -46,13 +46,22 @@ class ResultInfo:
 
 
 def discover_examples(project_root: Path) -> list[Path]:
-    """Return main.json paths for each example subdirectory."""
+    """Return main.json or main.py paths for each example subdirectory.
+
+    Directories with a ``main.json`` are compiled via the JSON pipeline.
+    Directories that only have a ``main.py`` (no ``main.json``) use the Python
+    DSL to generate the binary directly.
+    """
     examples_dir = project_root / "examples"
-    return sorted(
-        child / "main.json"
-        for child in examples_dir.iterdir()
-        if child.is_dir() and (child / "main.json").is_file()
-    )
+    paths: list[Path] = []
+    for child in sorted(examples_dir.iterdir()):
+        if not child.is_dir():
+            continue
+        if (child / "main.json").is_file():
+            paths.append(child / "main.json")
+        elif (child / "main.py").is_file():
+            paths.append(child / "main.py")
+    return paths
 
 
 def _parse_expectations(stdout: str) -> tuple[list[tuple[str, str]], int]:
@@ -70,44 +79,83 @@ def _parse_expectations(stdout: str) -> tuple[list[tuple[str, str]], int]:
     return (mismatches, n_tests)
 
 
-def run_example(json_path: Path, project_root: Path) -> ResultInfo:
-    """Compile via compiler.main(), run the binary, check EXPECT lines."""
+def run_example(input_path: Path, project_root: Path) -> ResultInfo:
+    """Compile and run an example, then check EXPECT lines.
+
+    Accepts either a ``main.json`` (JSON pipeline) or a ``main.py`` (Python
+    DSL pipeline) as *input_path*.
+    """
     start = time.perf_counter()
-    name = json_path.parent.name
+    name = input_path.parent.name
     project_root = project_root.resolve()
-    json_path = json_path.resolve()
-    file_runnable = json_path.with_suffix(".out")
+    input_path = input_path.resolve()
+    file_runnable = input_path.with_suffix(".out")
 
-    # main.json compilation
-    try:
-        exit_code = compile_main(
-            [
-                str(json_path),
-                "--project-root",
-                str(project_root),
-                "--link",
-            ]
-        )
-
-    # Exit code
-    except SystemExit as exc:
-        exit_code = exc.code if isinstance(exc.code, int) else 1
-        if exit_code != 0:
+    if input_path.suffix == ".py":
+        # Python DSL: run the script directly; it calls compiler() internally.
+        try:
+            proc_compile = subprocess.run(
+                [
+                    sys.executable,
+                    str(input_path),
+                    "--project-root",
+                    str(project_root),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
+            )
+        except Exception as exc:
             return ResultInfo(
                 name=name,
                 status=ResultStats.ERROR,
-                message=f"exit code {exit_code}",
+                message=str(exc) or repr(exc),
                 elapsed_s=time.perf_counter() - start,
             )
 
-    # Crash
-    except Exception as exc:
-        return ResultInfo(
-            name=name,
-            status=ResultStats.ERROR,
-            message=str(exc) or repr(exc),
-            elapsed_s=time.perf_counter() - start,
-        )
+        if proc_compile.returncode != 0:
+            rc = proc_compile.returncode
+            detail = proc_compile.stderr.strip() or f"exit code {rc}"
+            return ResultInfo(
+                name=name,
+                status=ResultStats.ERROR,
+                message=detail,
+                elapsed_s=time.perf_counter() - start,
+            )
+
+    else:
+        # JSON pipeline
+        json_path = input_path
+        try:
+            exit_code = compile_main(
+                [
+                    str(json_path),
+                    "--project-root",
+                    str(project_root),
+                    "--link",
+                ]
+            )
+
+        # Exit code
+        except SystemExit as exc:
+            exit_code = exc.code if isinstance(exc.code, int) else 1
+            if exit_code != 0:
+                return ResultInfo(
+                    name=name,
+                    status=ResultStats.ERROR,
+                    message=f"exit code {exit_code}",
+                    elapsed_s=time.perf_counter() - start,
+                )
+
+        # Crash
+        except Exception as exc:
+            return ResultInfo(
+                name=name,
+                status=ResultStats.ERROR,
+                message=str(exc) or repr(exc),
+                elapsed_s=time.perf_counter() - start,
+            )
 
 
     # Run file
@@ -116,7 +164,7 @@ def run_example(json_path: Path, project_root: Path) -> ResultInfo:
             [str(file_runnable)],
             capture_output=True,
             text=True,
-            cwd=str(json_path.parent),
+            cwd=str(input_path.parent),
             timeout=30,
             check=False,
         )
